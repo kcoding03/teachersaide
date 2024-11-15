@@ -1,12 +1,12 @@
-import openai
+from openai import OpenAI
 
-# Set up your API key
-#openai.api_key = "[add key]"
+client = OpenAI(
+    api_key = "[Key]",
+)
 
-def get_assistant_response(prompt):
-    response = openai.Completion.create(
-        engine="text-davinci-003",
-        prompt=prompt,
-        max_tokens=100
-    )
-    return response.choices[0].text.strip()
+assistant = client.beta.assistants.create(
+    name="Computer Science Professor's Assistant",
+    instructions="You are an expert computer scientist. Use you knowledge base to answer questions about computer science classes guidelines.",
+    model="gpt-4o-mini",
+    tools=[{"type": "file_search"}],
+)

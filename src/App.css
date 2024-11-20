@@ -14,18 +14,49 @@
 }
 
 .App-header {
-  background-color: #282c34;
+  background-color: #c3e6d9;
   min-height: 100vh;
   display: flex;
-  flex-direction: column;
   align-items: center;
-  justify-content: center;
+  flex-direction: column;
   font-size: calc(10px + 2vmin);
-  color: white;
+  color: black;
 }
 
-.App-link {
-  color: #61dafb;
+
+#fileForm {
+  background-color: #c3e6d9;
+  text-align: left;
+  min-height: 50vh;
+  font-size: 20px;
+}
+
+#fileForm label{
+  text-align: left
+}
+
+#fileForm input {
+  background-color: #96a8a2;
+  border: none;
+  cursor: pointer;
+  width: auto;
+  height: auto;
+  font-size: 16px;
+  padding: 10px 15px;
+  display: inline-block;
+}
+
+#fileForm button {
+  background-color: #788782;
+  border: none;
+  cursor: pointer;
+  width: auto;
+  height: auto;
+  font-size: 16px;
+  padding: 10px 15px;
+  display: inline-block;
+  margin-left: 10px;
+  color:white;
 }
 
 @keyframes App-logo-spin {
@@ -36,3 +67,5 @@
     transform: rotate(360deg);
   }
 }
+
+

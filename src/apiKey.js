@@ -1,1 +1,1 @@
-export const apiKey = '[api_key]';
+const apiKey = process.env.OPENAI_API_KEY;

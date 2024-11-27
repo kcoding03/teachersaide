@@ -1,31 +1,23 @@
-// utils/createAssistant.js
-import { apiKey } from "./apiKey";
-import { vectorStoreId } from "./vector_store"
+// assistant.js
 
-export const createAssistant = async (vectorStoreId, apiKey) => {
-    try {
-      const response = await fetch('https://api.openai.com/v1/assistants', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${apiKey}`,
-          'OpenAI-Beta': 'assistants=v2',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          model: 'gpt-4o-mini',
-          prompt: 'Provide class help to Computer Science Professor.',
-          tool_resources: {
-            file_search: {
-              vector_store_ids: [vectorStoreId],
-            },
+export async function createAssistant(name) {
+  try {
+      const response = await fetch('http://127.0.0.1:5000/create-assistant', {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
           },
-        }),
+          body: JSON.stringify({ name }), // Sending the assistant name
       });
-  
+
+      if (!response.ok) {
+          throw new Error(`Failed to create assistant: ${response.statusText}`);
+      }
+
       const data = await response.json();
-      return data.id;  // Returning assistant ID
-    } catch (error) {
-      console.error('Error creating assistant:', error);
-    }
-  };
-  
+      console.log("Assistant created:", data);
+      return data; // This will include the assistant ID
+  } catch (error) {
+      console.error("Error creating assistant:", error);
+  }
+}

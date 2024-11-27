@@ -1,50 +1,33 @@
-import './App.css';
-import React, { useState } from 'react';
-import { createVectorStore } from './vector_store';
-import { uploadFileToVectorStore } from './file_upload';
-import { createAssistant } from './assistant';
-import { apiKey } from "./apiKey";
+import React, { useEffect , useState} from 'react';
+import FileUploadComponent from './file_upload';
 
-function App() {
-  const [file, setFile] = useState(null);
-  const [vectorStoreId, setVectorStoreId] = useState(null);
-  const [assistantId, setAssistantId] = useState(null);
+const App = () => {
+  const [question, setQuestion] = useState("");
+  const [response, setResponse] = useState("");
 
-
-  // Handle file input change
-  const handleFileChange = (event) => {
-    const selectedFile = event.target.files[0];
-    setFile(selectedFile);
+  const handleInputChange = (event) => {
+    setQuestion(event.target.value);
   };
 
-  // Handle vector store creation
-  const handleCreateVectorStore = async () => {
-    const vectorStoreId = await createVectorStore(apiKey);  // Calling the function
-    setVectorStoreId(vectorStoreId);
-    console.log('Vector store created:', vectorStoreId);
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
+    // Call the backend with the question
+    const res = await fetch('http://localhost:5000/ask', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ question }),
+    });
+
+    const data = await res.json();
+    console.log(data.answer)
+    setResponse(data.answer);  // Assuming the backend returns the assistant's response
   };
 
-  // Handle file upload
-  const handleUploadFile = async () => {
-    if (!file || !vectorStoreId) {
-      console.log('Please select a file and create a vector store first.');
-      return;
-    }
-    const fileData = await uploadFileToVectorStore(file, vectorStoreId, apiKey);  // Calling the function
-    console.log('File uploaded:', fileData);
-    handleCreateAssistant();  // Proceed to create assistant after file upload
-  };
 
-  // Handle assistant creation
-  const handleCreateAssistant = async () => {
-    if (!vectorStoreId) {
-      console.log('Vector store ID is required to create the assistant.');
-      return;
-    }
-    const assistantId = await createAssistant(vectorStoreId, apiKey);  // Calling the function
-    setAssistantId(assistantId);
-    console.log('Assistant created:', assistantId);
-  };
+
 
   return (
     <div className="App">
@@ -53,14 +36,22 @@ function App() {
           Welcome to Your Teachers Aide!
         </p>
       </header>
-      <input type="file" onChange={handleFileChange} />
-      <button onClick={handleCreateVectorStore}>Create Vector Store</button>
-      <button onClick={handleUploadFile}>Upload File</button>
-      <button onClick={handleCreateAssistant}>Create Assistant</button>
+      <h1>Ask the Assistant</h1>
+      <form onSubmit={handleSubmit}>
+        <input 
+          type="text"
+          value={question}
+          onChange={handleInputChange}
+          placeholder="Enter your question"
+        />
+        <button type="submit">Submit</button>
+      </form>
+      
       <div>
-        {assistantId && <p>Assistant ID: {assistantId}</p>}
-        {vectorStoreId && <p>Vector Store ID: {vectorStoreId}</p>}
+        <h3>Response:</h3>
+        <p>{response}</p>
       </div>
+      <FileUploadComponent />
     </div>
   );
 }

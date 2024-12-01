@@ -1,12 +1,15 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from openai import OpenAI
+from openai import OpenAI 
+import os
 
 app = Flask(__name__)
 CORS(app, origins=["http://localhost:3000"])
+key = os.getenv('OPENAI_API_KEY')
 
 # Initialize OpenAI client
-client = OpenAI(api_key='[Key]')
+client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
+
 vector_store_id = None
 assistant_id = None
 thread_id = None
@@ -15,6 +18,7 @@ file_ids = []
 @app.route('/create_assistant', methods=['POST'])
 def create_assistant():
     data = request.get_json()
+    # print(data) 
     assistant_name = data['assistant_name']
     vector_store_name = data['vector_store_name']
 
@@ -22,22 +26,17 @@ def create_assistant():
     global assistant_id
     global thread_id
 
-    vector_store = client.beta.vector_stores.create(name=vector_store_name)
+    # vector_store = client.beta.vector_stores.create(name=vector_store_name)
 
-    # Create the assistant and link to vector store
-    assistant = client.beta.assistants.create(
-        name=assistant_name,
-        model="gpt-4o-mini",
-        tools=[{"type": "file_search"}],
-    )
-    assistant_id = assistant.id
-    vector_store_id = vector_store.id
-
+    
+    assistant_id = 'asst_qoNwKMPiqQiaFzKbiNoB5Bi8'
+    vector_store_id = 'vs_QLyVCsVBUPG1yazEc5ZqJpUS'
+    # print(vector_store_id)
     # Associate the vector store with the assistant
-    assistant = client.beta.assistants.update(
-        assistant_id=assistant_id,
-        tool_resources={"file_search": {"vector_store_ids": [vector_store.id]}},
-    )
+    # assistant = client.beta.assistants.update(
+    #     assistant_id=assistant_id,
+    #     tool_resources={"file_search": {"vector_store_ids": [vector_store.id]}},
+    # )
 
     return jsonify({
         "message": "Assistant and Vector Store created successfully",
@@ -90,6 +89,9 @@ def ask_assistant():
     
     if not query:
         return jsonify({"error": "No question provided"}), 400
+    if not assistant_id:
+        return jsonify({"error": "Assistant ID is not set"}), 400
+
     thread = client.beta.threads.create(
     messages=[
         {
@@ -108,6 +110,9 @@ def ask_assistant():
     thread_id=thread_id, assistant_id=assistant_id
 )
     messages = list(client.beta.threads.messages.list(thread_id=thread_id, run_id=run.id))
+
+    if not messages:
+        return jsonify({"error": "No messages returned from the assistant"}), 500
 
     message_content = messages[0].content[0].text
     annotations = message_content.annotations

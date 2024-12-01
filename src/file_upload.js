@@ -1,7 +1,7 @@
-import React, { useState , useEffect} from 'react';
+import React, {useEffect} from 'react';
 
 const createAssistantAndVectorStore = async () => {
-    const url = "http://localhost:5000/create_assistant"; // Flask endpoint to create assistant
+    const url = "http://127.0.0.1:5000/create_assistant"; // Flask endpoint to create assistant
     const response = await fetch(url, {
       method: "POST",
       headers: {
@@ -35,7 +35,7 @@ const createAssistantAndVectorStore = async () => {
         formData.append("file", file);
       });
   
-      const uploadResponse = await fetch("http://localhost:5000/upload_files", {
+      const uploadResponse = await fetch("http://127.0.0.1:5000/upload_files", {
         method: "POST",
         headers: {
           "Authorization": "Bearer [Key]",  // Ensure to use the appropriate header
@@ -51,10 +51,53 @@ const createAssistantAndVectorStore = async () => {
     };
   
     return (
-        <div>
-        <input type="file" multiple onChange={handleFileUpload} />
-        </div>
+      <div style={styles.container}>
+      <label style={styles.label} htmlFor="fileInput">
+        Upload Files
+      </label>
+      <input
+        id="fileInput"
+        type="file"
+        multiple
+        onChange={handleFileUpload}
+        style={styles.input}
+      />
+    </div>
       );
     };
     
+    const styles = {
+      container: {
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "2rem",
+        backgroundColor: "#f4f4f4",
+        borderRadius: "8px",
+        boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+        maxWidth: "400px",
+        margin: "auto",
+      },
+      label: {
+        display: "inline-block",
+        padding: "0.75rem 1.5rem",
+        backgroundColor: "#007bff",
+        color: "#fff",
+        borderRadius: "4px",
+        cursor: "pointer",
+        fontSize: "1rem",
+        fontWeight: "bold",
+        textAlign: "center",
+        transition: "background-color 0.3s ease",
+        marginBottom: "1rem",
+      },
+      labelHover: {
+        backgroundColor: "#0056b3",
+      },
+      input: {
+        display: "none", // Hides the default input element
+      },
+    };
+
     export default FileUploadComponent;

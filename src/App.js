@@ -1,6 +1,7 @@
 import React, {useState} from 'react';
 import './App.css';
 import FileUploadComponent from './file_upload';
+import ReactMarkdown from 'react-markdown';
 
 const App = () => {
   const [question, setQuestion] = useState("");
@@ -24,9 +25,7 @@ const App = () => {
 
     const data = await res.json();
     console.log(data.answer)
-    const beautifiedResponse = data.answer.replace(/\s+/g, ' ').trim();
-    setResponse(beautifiedResponse);
-    // setResponse(data.answer);  // Assuming the backend returns the assistant's response
+    setResponse(<ReactMarkdown>{data.answer}</ReactMarkdown>);  // Assuming the backend returns the assistant's response
   };
 
 

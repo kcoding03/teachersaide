@@ -52,7 +52,7 @@ const createAssistantAndVectorStore = async () => {
   
     return (
       <div style={styles.container}>
-      <label style={styles.label} htmlFor="fileInput">
+      <label className='btn' htmlFor="fileInput">
         Upload Files
       </label>
       <input

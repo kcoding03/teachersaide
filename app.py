@@ -9,7 +9,6 @@ key = os.getenv('OPENAI_API_KEY')
 
 # Initialize OpenAI client
 client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
-
 vector_store_id = None
 assistant_id = None
 thread_id = None
@@ -26,17 +25,21 @@ def create_assistant():
     global assistant_id
     global thread_id
 
-    # vector_store = client.beta.vector_stores.create(name=vector_store_name)
+    vector_store = client.beta.vector_stores.create(name=vector_store_name)
 
     
-    assistant_id = 'asst_qoNwKMPiqQiaFzKbiNoB5Bi8'
-    vector_store_id = 'vs_QLyVCsVBUPG1yazEc5ZqJpUS'
-    # print(vector_store_id)
+    assistant = client.beta.assistants.create(
+        name=assistant_name,
+        model="gpt-4o-mini",
+        tools=[{"type": "file_search"}],
+    )
+    assistant_id = assistant.id
+    vector_store_id = vector_store.id
     # Associate the vector store with the assistant
-    # assistant = client.beta.assistants.update(
-    #     assistant_id=assistant_id,
-    #     tool_resources={"file_search": {"vector_store_ids": [vector_store.id]}},
-    # )
+    assistant = client.beta.assistants.update(
+        assistant_id=assistant_id,
+        tool_resources={"file_search": {"vector_store_ids": [vector_store.id]}},
+    )
 
     return jsonify({
         "message": "Assistant and Vector Store created successfully",

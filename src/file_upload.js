@@ -1,12 +1,12 @@
 import React, {useEffect} from 'react';
 
-const createAssistantAndVectorStore = async () => {
+export const createAssistantAndVectorStore = async () => {
     const url = "http://127.0.0.1:5000/create_assistant"; // Flask endpoint to create assistant
     const response = await fetch(url, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": "Bearer [key]",  // Ensure to use the appropriate header
+        "Authorization": "Bearer [key]",
       },
       body: JSON.stringify({
         assistant_name: "Computer Science Professor Assistant",
@@ -23,10 +23,10 @@ const createAssistantAndVectorStore = async () => {
   
   // Component to handle file uploads and automatic assistant creation
   const FileUploadComponent = () => {
-    useEffect(() => {
-      // Create assistant and vector store when the app is loaded
-      createAssistantAndVectorStore();
-    }, []);
+    // useEffect(() => {
+    //   // Create assistant and vector store when the app is loaded
+    //   createAssistantAndVectorStore();
+    // }, []);
   
     const handleFileUpload = async (e) => {
       const files = e.target.files;
@@ -38,7 +38,7 @@ const createAssistantAndVectorStore = async () => {
       const uploadResponse = await fetch("http://127.0.0.1:5000/upload_files", {
         method: "POST",
         headers: {
-          "Authorization": "Bearer [Key]",  // Ensure to use the appropriate header
+          "Authorization": "Bearer [key]",
         },
         body: formData,
       });

@@ -1,6 +1,6 @@
 import React, {useEffect} from 'react';
 
-const createAssistantAndVectorStore = async () => {
+ export const createAssistantAndVectorStore = async () => {
   const url = "http://127.0.0.1:5000/create_assistant"; // Flask endpoint to create assistant
   const response = await fetch(url, {
     method: "POST",
@@ -23,10 +23,10 @@ const createAssistantAndVectorStore = async () => {
   
   // Component to handle file uploads and automatic assistant creation
   const FileUploadComponent = ({ onChange = () => {} }) => {
-    useEffect(() => {
-      // Create assistant and vector store when the app is loaded
-      createAssistantAndVectorStore();
-    }, []);
+    // useEffect(() => {
+    //   // Create assistant and vector store when the app is loaded
+    //   createAssistantAndVectorStore();
+    // }, []);
   
     return (
         <label className='btn'>

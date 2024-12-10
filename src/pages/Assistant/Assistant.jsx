@@ -1,93 +1,158 @@
-import React, {useState} from 'react';
-import './Assistant.css';
-import FileUploadComponent from '../../file_upload';
-import ReactMarkdown from 'react-markdown';
+import React, { useState } from "react";
+import "./Assistant.css";
+import FileUploadComponent from "../../file_upload";
+import ReactMarkdown from "react-markdown";
+
+const instructorTools = [
+	{ label: "Lesson Plan", value: "Generate lesson plans" },
+	{ label: "Assignment", value: "Generate an assignment" },
+	{ label: "Quiz", value: "Generate a quiz" },
+	{ label: "Exam", value: "Generate an exam" },
+	{ label: "Project", value: "Generate a project" },
+];
 
 const AssistantPage = () => {
-  const [question, setQuestion] = useState("");
-  const [response, setResponse] = useState("");
+	const [question, setQuestion] = useState("");
+	const [response, setResponse] = useState("");
+	const [files, setFiles] = useState([]);
+	const [instructorItems, setInstructorItems] = useState([]);
 
-  const handleInputChange = (event) => {
-    setQuestion(event.target.value);
-  };
+	const handleInputChange = (event) => {
+		setQuestion(event.target.value);
+	};
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
+	const handleFileUpload = async () => {
+		const formData = new FormData();
+		Array.from(files).forEach((file) => {
+			formData.append("file", file);
+		});
 
-    // Call the backend with the question
-    const res = await fetch('http://127.0.0.1:5000/ask', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ question }),
-    });
+		const uploadResponse = await fetch(
+			"http://127.0.0.1:5000/upload_files",
+			{
+				method: "POST",
+				headers: {
+					Authorization: `Bearer ${process.env.OPENAI_API_KEY}`, // Ensure to use the appropriate header
+				},
+				body: formData,
+			}
+		);
 
-    const data = await res.json();
-    console.log(data.answer)
-    setResponse(<ReactMarkdown>{data.answer}</ReactMarkdown>);  // Assuming the backend returns the assistant's response
-  };
+		if (uploadResponse.ok) {
+			console.log("Files uploaded successfully");
+		} else {
+			console.log("File upload failed");
+		}
+	};
 
-  return (
-    <div className="App">
-      <div style={styles.container}>
-      <h1 style={styles.heading}>Ask the Assistant</h1>
-      <form onSubmit={handleSubmit} style={styles.form}>
-        <input
-          type="text"
-          value={question}
-          onChange={handleInputChange}
-          placeholder="Enter your question"
-          style={styles.input}
-        />
-        <button type="submit" className='btn'>
-          Submit
-        </button>
-      </form>
-    </div>
-      
-      <div>
-        <h3>Response:</h3>
-        <p>{response}</p>
-      </div>
-      <FileUploadComponent />
-    </div>
-  );
-}
+	const requestInstructorResources = async () => {
+		instructorItems.forEach(async (item) => {
+			const res = await askQuestion(item);
+			const data = await res.json();
 
-const styles = {
-  container: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
-    minHeight: "10vh",
-    backgroundColor: "#f9f9f9",
-    fontFamily: "Arial, sans-serif",
-  },
-  heading: {
-    color: "#333",
-    fontSize: "2rem",
-    marginBottom: "1rem",
-  },
-  form: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    gap: "1rem",
-    backgroundColor: "#fff",
-    padding: "2rem",
-    borderRadius: "8px",
-    boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-  },
-  input: {
-    width: "100%",
-    maxWidth: "400px",
-    padding: "0.75rem",
-    border: "1px solid #ccc",
-    borderRadius: "4px",
-    fontSize: "1rem",
-  }
+			console.log(data);
+		});
+	};
+
+	const askQuestion = async (question) => {
+		return await fetch("http://127.0.0.1:5000/ask", {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify({ question }),
+		});
+	};
+
+	const handleSubmit = async (event) => {
+		event.preventDefault();
+
+		await handleFileUpload();
+		await requestInstructorResources();
+
+		// Call the backend with the question
+		const res = await askQuestion(question);
+
+		const data = await res.json();
+		console.log(data.answer);
+		setResponse(data.answer); // Assuming the backend returns the assistant's response
+	};
+
+	const toggleInstructorItem = (event) => {
+		if (event.target.checked) {
+			setInstructorItems((prevInstructorItems) => [
+				...prevInstructorItems,
+				event.target.value,
+			]);
+		} else {
+			setInstructorItems((prevInstructorItems) =>
+				prevInstructorItems.filter(
+					(item) => item !== event.target.value
+				)
+			);
+		}
+	};
+
+	return (
+		<div className="Assistant-container">
+			<div className="Assistant-section">
+				<h1>Ask the Assistant</h1>
+
+				<form onSubmit={handleSubmit} className="Assistant-ask-form">
+					<input
+						type="text"
+						value={question}
+						onChange={handleInputChange}
+						placeholder="Enter your question"
+					/>
+
+					<FileUploadComponent
+						onChange={(value) => setFiles(value)}
+					/>
+
+					<div className="Assistant-instructor-tools">
+						<h2>Instructor Tools</h2>
+						<p>Select the items you would like to generate</p>
+
+						<div className="Assistant-instructor-tool-items">
+							{instructorTools.map((tool) => (
+								<div
+									key={tool.value}
+									className="Assistant-instructor-tool-item"
+								>
+									<input
+										id={tool.value}
+										type="checkbox"
+										value={tool.value}
+										onChange={toggleInstructorItem}
+										hidden
+									/>
+									<label for={tool.value}>{tool.label}</label>
+								</div>
+							))}
+						</div>
+					</div>
+
+					<button type="submit" className="btn">
+						Submit
+					</button>
+				</form>
+			</div>
+
+			<div className="Assistant-section">
+				<h1>Response:</h1>
+				<p className="Assistant-response">
+					{response ? (
+						<ReactMarkdown>{response}</ReactMarkdown>
+					) : (
+						<span className="Assistant-response-placeholder">
+							Ask a question above to get started!
+						</span>
+					)}
+				</p>
+			</div>
+		</div>
+	);
 };
 
 export default AssistantPage;

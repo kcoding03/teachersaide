@@ -22,33 +22,11 @@ const createAssistantAndVectorStore = async () => {
   };
   
   // Component to handle file uploads and automatic assistant creation
-  const FileUploadComponent = () => {
+  const FileUploadComponent = ({ onChange = () => {} }) => {
     useEffect(() => {
       // Create assistant and vector store when the app is loaded
       createAssistantAndVectorStore();
     }, []);
-  
-    const handleFileUpload = async (e) => {
-      const files = e.target.files;
-      const formData = new FormData();
-      Array.from(files).forEach((file) => {
-        formData.append("file", file);
-      });
-  
-      const uploadResponse = await fetch("http://127.0.0.1:5000/upload_files", {
-        method: "POST",
-        headers: {
-          "Authorization": "Bearer [Key]",  // Ensure to use the appropriate header
-        },
-        body: formData,
-      });
-  
-      if (uploadResponse.ok) {
-        console.log("Files uploaded successfully");
-      } else {
-        console.log("File upload failed");
-      }
-    };
   
     return (
         <label className='btn'>

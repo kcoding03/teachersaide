@@ -3,35 +3,14 @@ import "./Assistant.css";
 import FileUploadComponent from "../../file_upload";
 import ReactMarkdown from "react-markdown";
 
-const AssistantPage = () => {
+export const AssistantPage = () => {
   const [question, setQuestion] = useState("");
   const [response, setResponse] = useState("");
-  const [files, setFiles] = useState([]);
 
   const handleInputChange = (event) => {
     setQuestion(event.target.value);
   };
 
-  const handleFileUpload = async () => {
-    const formData = new FormData();
-    Array.from(files).forEach((file) => {
-      formData.append("file", file);
-    });
-
-    const uploadResponse = await fetch("http://127.0.0.1:5000/upload_files", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`, // Ensure to use the appropriate header
-      },
-      body: formData,
-    });
-
-    if (uploadResponse.ok) {
-      console.log("Files uploaded successfully");
-    } else {
-      console.log("File upload failed");
-    }
-  };
 
   const askQuestion = async (question) => {
     return await fetch("http://127.0.0.1:5000/ask", {
@@ -45,15 +24,17 @@ const AssistantPage = () => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-
-    await handleFileUpload();
-
     // Call the backend with the question
-    const res = await askQuestion(question);
-
+    const res = await fetch('http://127.0.0.1:5000/ask', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ question }),
+    });
     const data = await res.json();
-    console.log(data.answer);
-    setResponse(data.answer); // Assuming the backend returns the assistant's response
+    console.log(data.answer)
+    setResponse(data.answer);   // Assuming the backend returns the assistant's response // Assuming the backend returns the assistant's response
   };
 
   return (
@@ -69,7 +50,7 @@ const AssistantPage = () => {
             placeholder="Enter your question"
           />
 
-          <FileUploadComponent onChange={(value) => setFiles(value)} />
+          <FileUploadComponent/>
 
           <button type="submit" className="btn">
             Submit
